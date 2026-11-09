@@ -1,0 +1,3 @@
+Stickman World prototype package
+This is a starter prototype, not the complete production game.
+Read README.md for included and missing features.
