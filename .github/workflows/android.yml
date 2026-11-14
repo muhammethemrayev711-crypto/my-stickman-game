@@ -1,32 +1,35 @@
-
-name: Build Android APK
+name: "Android Build"
 
 on:
-  workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
 
 jobs:
-  export:
+  build:
+    name: "Build Android APK"
     runs-on: ubuntu-latest
-    container:
-      image: barichello/godot-ci:4.3
-
+    
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Prepare output
-        run: mkdir -p StickmanWorld/build
+      # Godot Ortamını Kur (Godot sürümüne göre burayı değiştirebilirsin, örn: v3.5.3-stable)
+      - name: Setup Godot
+        uses: abarichello/godot-ci@v4.3-stable
+        
+      - name: Create Export Directory
+        run: mkdir -p build/android
 
-      - name: Import project
-        run: godot --headless --editor --path StickmanWorld --quit
-
+      # Projeyi Android APK olarak dışa aktar (export_presets.cfg içindeki preset adıyla aynı olmalı)
       - name: Export APK
-        run: godot --headless --path StickmanWorld --export-debug "Android" StickmanWorld/build/StickmanWorld.apk
-
-      - name: Upload APK
+        run: |
+          godot --headless --export-release "Android" build/android/game.apk
+          
+      # Çıktı olarak oluşan APK dosyasını indirilebilir hale getir
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: StickmanWorld-APK
-          path: StickmanWorld/build/StickmanWorld.apk
+          name: stickman-world-apk
+          path: build/android/game.apk
